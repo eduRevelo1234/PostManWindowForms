@@ -1,0 +1,64 @@
+﻿using Newtonsoft.Json;
+using RestSharp;
+using RestSharp.Extensions;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+using System.Windows.Forms;
+
+namespace Clases.ApiRest
+{
+    public class DBApi
+    {
+        public dynamic Post(string url, string json, string autorizacion = null)
+        {
+            try
+            {
+                var client = new RestClient(url);
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("content-type", "application/json");
+                request.AddParameter("application/json", json, ParameterType.RequestBody);
+                request.Credentials = new NetworkCredential("5f357d4725643258bc5e86e4", "abae22e78428f22a9b094e68e0c29f82");
+                if (autorizacion != null)
+                {
+                    request.AddHeader("Authorization", autorizacion);
+                }
+
+                IRestResponse response = client.Execute(request);
+
+                dynamic datos = JsonConvert.DeserializeObject(response.Content);
+
+                return datos;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return null;
+            }
+        }
+
+
+        public dynamic Get(string url)
+        {
+            HttpWebRequest myWebRequest = (HttpWebRequest)WebRequest.Create(url);
+            myWebRequest.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0";
+            //myWebRequest.CookieContainer = myCookie;
+            myWebRequest.Credentials = new NetworkCredential("5f357d4725643258bc5e86e4", "abae22e78428f22a9b094e68e0c29f82");
+            myWebRequest.Proxy = null;
+            HttpWebResponse myHttpWebResponse = (HttpWebResponse)myWebRequest.GetResponse();
+            Stream myStream = myHttpWebResponse.GetResponseStream();
+            StreamReader myStreamReader = new StreamReader(myStream);
+            //Leemos los datos
+            string Datos = HttpUtility.HtmlDecode(myStreamReader.ReadToEnd());
+
+            dynamic data = JsonConvert.DeserializeObject(Datos);
+
+            return data;
+        }
+    }
+}
